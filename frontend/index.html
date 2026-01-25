@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: #764ba2;
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button[type="submit"], button.submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button[type="submit"]:hover, button.submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .student-select-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .student-card {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .student-card strong {
+            color: #667eea;
+        }
+
+        small {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .info-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Student Management System</h1>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('attendance')">Mark Attendance</button>
+                <button class="tab-btn" onclick="switchTab('leave')">Apply Leave</button>
+                <button class="tab-btn" onclick="switchTab('register')">Add Student</button>
+                <button class="tab-btn" onclick="switchTab('viewAttendance')">View Attendance</button>
+                <button class="tab-btn" onclick="switchTab('viewLeave')">View Leave</button>
+            </div>
+
+            <!-- Mark Attendance Tab -->
+            <div id="attendance" class="tab-content active">
+                <h2 style="margin-bottom: 20px; color: #333;">Mark Your Attendance</h2>
+                <div id="attendanceAlert"></div>
+                
+                <div class="student-select-section">
+                    <div class="form-group">
+                        <label for="attendanceStudent">Select Your Student ID:</label>
+                        <select id="attendanceStudent" required>
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Today's Date:</label>
+                    <input type="text" id="currentDate" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Current Time:</label>
+                    <input type="text" id="currentTime" readonly>
+                </div>
+                <button class="submit-btn" onclick="handleMarkAttendance()">Mark Attendance</button>
+            </div>
+
+            <!-- Apply Leave Tab -->
+            <div id="leave" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">Apply for Leave</h2>
+                <div id="leaveAlert"></div>
+                
+                <div class="student-select-section">
+                    <div class="form-group">
+                        <label for="leaveStudent">Your Student ID:</label>
+                        <select id="leaveStudent" required>
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="reason">Reason for Leave:</label>
+                    <textarea id="reason" required placeholder="Please explain your reason for leave..."></textarea>
+                </div>
+                <button class="submit-btn" onclick="handleLeaveSubmit()">Submit Leave Application</button>
+            </div>
+
+            <!-- Add Student Tab -->
+            <div id="register" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">Register New Student</h2>
+                <div id="registerAlert"></div>
+                
+                <div class="form-group">
+                    <label for="newStudentId">Student ID:</label>
+                    <input type="text" id="newStudentId" required placeholder="e.g., STU004" 
+                           pattern="[A-Z]{3}[0-9]{3,}" 
+                           title="Format: 3 uppercase letters followed by numbers (e.g., STU004)">
+                    <small>Format: STU followed by numbers (e.g., STU004)</small>
+                </div>
+                <div class="form-group">
+                    <label for="newStudentName">Full Name:</label>
+                    <input type="text" id="newStudentName" required placeholder="Enter student's full name">
+                </div>
+                <div class="form-group">
+                    <label for="newStudentEmail">Email Address:</label>
+                    <input type="email" id="newStudentEmail" required placeholder="student@example.com">
+                </div>
+                <button class="submit-btn" onclick="handleRegisterStudent()">Register Student</button>
+
+                <div class="info-section">
+                    <h3>Current Students:</h3>
+                    <div id="studentsList"></div>
+                </div>
+            </div>
+
+            <!-- View Attendance Tab -->
+            <div id="viewAttendance" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">Attendance History</h2>
+                
+                <div class="student-select-section">
+                    <div class="form-group">
+                        <label for="viewAttendanceStudent">Select Student:</label>
+                        <select id="viewAttendanceStudent" onchange="loadAttendance()">
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="attendanceHistory"></div>
+            </div>
+
+            <!-- View Leave Tab -->
+            <div id="viewLeave" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">Leave Applications</h2>
+                
+                <div class="student-select-section">
+                    <div class="form-group">
+                        <label for="viewLeaveStudent">Select Student:</label>
+                        <select id="viewLeaveStudent" onchange="loadLeaveApplications()">
+                            <option value="">-- Select Student --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="leaveHistory"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        // Load students on page load
+        window.onload = function() {
+            loadStudents();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        };
+
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const btns = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            btns.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Load students list when switching to register tab
+            if (tabName === 'register') {
+                displayStudentsList();
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch(`${API_URL}/students`);
+                const students = await response.json();
+                
+                const selects = ['attendanceStudent', 'leaveStudent', 'viewAttendanceStudent', 'viewLeaveStudent'];
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    select.innerHTML = '<option value="">-- Select Student --</option>';
+                    students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.student_id;
+                        option.textContent = `${student.student_id} - ${student.name}`;
+                        select.appendChild(option);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        async function displayStudentsList() {
+            try {
+                const response = await fetch(`${API_URL}/students`);
+                const students = await response.json();
+                const container = document.getElementById('studentsList');
+                
+                if (students.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">No students registered yet.</p>';
+                    return;
+                }
+
+                let html = '';
+                students.forEach(student => {
+                    html += `
+                        <div class="student-card">
+                            <strong>${student.student_id}</strong> - 
+                            ${student.name} 
+                            <span style="color: #999;">(${student.email})</span>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error displaying students:', error);
+            }
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            const timeStr = now.toLocaleTimeString('en-US');
+            
+            document.getElementById('currentDate').value = dateStr;
+            document.getElementById('currentTime').value = timeStr;
+        }
+
+        async function handleMarkAttendance() {
+            const studentId = document.getElementById('attendanceStudent').value;
+            
+            if (!studentId) {
+                showAlert('attendanceAlert', 'Please select a student ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/attendance/mark`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('attendanceAlert', data.message, 'success');
+                    document.getElementById('attendanceStudent').value = '';
+                } else {
+                    showAlert('attendanceAlert', data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('attendanceAlert', 'Error marking attendance. Please check if the server is running.', 'error');
+            }
+        }
+
+        async function handleLeaveSubmit() {
+            const studentId = document.getElementById('leaveStudent').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const reason = document.getElementById('reason').value;
+
+            if (!studentId) {
+                showAlert('leaveAlert', 'Please select a student ID', 'error');
+                return;
+            }
+
+            if (!startDate || !endDate || !reason) {
+                showAlert('leaveAlert', 'Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/leave/apply`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        start_date: startDate,
+                        end_date: endDate,
+                        reason: reason
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('leaveAlert', data.message, 'success');
+                    document.getElementById('leaveStudent').value = '';
+                    document.getElementById('startDate').value = '';
+                    document.getElementById('endDate').value = '';
+                    document.getElementById('reason').value = '';
+                } else {
+                    showAlert('leaveAlert', data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('leaveAlert', 'Error submitting leave application. Please check if the server is running.', 'error');
+            }
+        }
+
+        async function handleRegisterStudent() {
+            const studentId = document.getElementById('newStudentId').value.toUpperCase();
+            const name = document.getElementById('newStudentName').value;
+            const email = document.getElementById('newStudentEmail').value;
+
+            if (!studentId || !name || !email) {
+                showAlert('registerAlert', 'Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/students/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        name: name,
+                        email: email
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('registerAlert', data.message, 'success');
+                    document.getElementById('newStudentId').value = '';
+                    document.getElementById('newStudentName').value = '';
+                    document.getElementById('newStudentEmail').value = '';
+                    // Reload students list
+                    await loadStudents();
+                    displayStudentsList();
+                } else {
+                    showAlert('registerAlert', data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('registerAlert', 'Error registering student. Please check if the server is running.', 'error');
+            }
+        }
+
+        async function loadAttendance() {
+            const studentId = document.getElementById('viewAttendanceStudent').value;
+            const container = document.getElementById('attendanceHistory');
+
+            if (!studentId) {
+                container.innerHTML = '<div class="empty-state">Please select a student to view attendance</div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/attendance/${studentId}`);
+                const attendance = await response.json();
+
+                if (attendance.error) {
+                    container.innerHTML = `<div class="empty-state">${attendance.error}</div>`;
+                    return;
+                }
+
+                if (attendance.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No attendance records found</div>';
+                    return;
+                }
+
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                attendance.forEach(record => {
+                    html += `
+                        <tr>
+                            <td>${record.date}</td>
+                            <td>${record.time}</td>
+                            <td><span class="status-badge status-${record.status}">${record.status}</span></td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Error loading attendance. Please check if the server is running.</div>';
+            }
+        }
+
+        async function loadLeaveApplications() {
+            const studentId = document.getElementById('viewLeaveStudent').value;
+            const container = document.getElementById('leaveHistory');
+
+            if (!studentId) {
+                container.innerHTML = '<div class="empty-state">Please select a student to view leave applications</div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/leave/${studentId}`);
+                const leaves = await response.json();
+
+                if (leaves.error) {
+                    container.innerHTML = `<div class="empty-state">${leaves.error}</div>`;
+                    return;
+                }
+
+                if (leaves.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No leave applications found</div>';
+                    return;
+                }
+
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Applied On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                leaves.forEach(leave => {
+                    const appliedDate = new Date(leave.applied_at).toLocaleDateString();
+                    html += `
+                        <tr>
+                            <td>${leave.start_date}</td>
+                            <td>${leave.end_date}</td>
+                            <td>${leave.reason}</td>
+                            <td><span class="status-badge status-${leave.status}">${leave.status}</span></td>
+                            <td>${appliedDate}</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state">Error loading leave applications. Please check if the server is running.</div>';
+            }
+        }
+
+        function showAlert(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
