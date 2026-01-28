@@ -25,7 +25,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "8080:80"
+      - "3000:80"
     volumes:
       # Serve your frontend files (index.html, css, js)
       - ./frontend:/usr/share/nginx/html:ro
