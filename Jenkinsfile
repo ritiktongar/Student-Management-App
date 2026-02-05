@@ -3,49 +3,56 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
+                echo "🔄 Pulling latest source code..."
                 git branch: 'main', url: 'https://github.com/ritiktongar/Student-Management-App.git'
             }
         }
 
-        stage('Build Backend Docker Image') {
+        stage('Build Backend Image') {
             steps {
-                echo "Building Student Management Backend Image"
-                sh '''
-                    docker build -t student_mgmt_backend:latest -f Dockerfile .
-                '''
+                script {
+                    echo "🚀 Building Backend Docker Image..."
+                    sh """
+                    cd backend
+                    docker build -t student-backend:latest .
+                    """
+                }
             }
         }
 
-        stage('Stop Existing Container') {
+        stage('Build Frontend Image') {
             steps {
-                echo "Stopping old container if exists"
-                sh '''
-                    if [ "$(docker ps -aq -f name=student_mgmt_backend)" ]; then
-                        docker rm -f student_mgmt_backend || true
-                    fi
-                '''
+                script {
+                    echo "🚀 Building Frontend Docker Image..."
+                    sh """
+                    cd frontend
+                    docker build -t student-frontend:latest .
+                    """
+                }
             }
         }
 
-        stage('Deploy Locally') {
+        stage('Deploy with Docker Compose') {
             steps {
-                echo "Deploying new backend container"
-                sh '''
-                    docker run -d --name student_mgmt_backend -p 5000:5000 student_mgmt_backend:latest
-                '''
+                script {
+                    echo "🌐 Deploying application stack via Docker Compose..."
+                    sh """
+                    docker compose down
+                    docker compose up -d --build
+                    """
+                }
             }
         }
-
     }
 
     post {
         success {
-            echo "Deployment successful 🚀"
+            echo "🎉 Local Deployment Successful!"
         }
         failure {
-            echo "Deployment failed ❌"
+            echo "❌ Pipeline Failed — Check logs and remediate."
         }
     }
 }
