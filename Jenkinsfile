@@ -15,7 +15,7 @@ pipeline {
                 script {
                     echo "🚀 Building Backend Docker Image..."
                     sh """
-                    cd backend
+                    cd Backend
                     docker build -t student-backend:latest .
                     """
                 }
@@ -27,7 +27,7 @@ pipeline {
                 script {
                     echo "🚀 Building Frontend Docker Image..."
                     sh """
-                    cd frontend
+                    cd Frontend
                     docker build -t student-frontend:latest .
                     """
                 }
@@ -37,7 +37,7 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    echo "🌐 Deploying application stack via Docker Compose..."
+                    echo "🌐 Deploying application using Docker Compose..."
                     sh """
                     docker compose down
                     docker compose up -d --build
